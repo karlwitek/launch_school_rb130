@@ -1,4 +1,4 @@
-This repo (launch_school_rb130) includes all course exercises and includes other exercises including Ruby Foundation Exercises and Ruby Challenges.
+This repo (launch_school_rb130) includes all course exercises and includes other exercises including Ruby Foundations Exercises and Ruby Challenges.
 
 Lesson 3 work is the todolist_project remote repo.
 
