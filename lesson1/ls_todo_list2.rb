@@ -1,0 +1,188 @@
+# This class represents a todo item and its associated
+# data: name and description. There's also a "done"
+# flag to show whether this todo item is done.
+
+class Todo
+  DONE_MARKER = 'X'
+  UNDONE_MARKER = ' '
+
+  attr_accessor :title, :description, :done
+
+  def initialize(title, description='')
+    @title = title
+    @description = description
+    @done = false
+  end
+
+  def done!
+    self.done = true
+  end
+
+  def done?
+    done
+  end
+
+  def undone!
+    self.done = false
+  end
+
+  def to_s
+    "[#{done? ? DONE_MARKER : UNDONE_MARKER}] #{title}"
+  end
+
+  def ==(otherTodo)
+    title == otherTodo.title &&
+      description == otherTodo.description &&
+      done == otherTodo.done
+  end
+end
+
+# This class represents a collection of Todo objects.
+# You can perform typical collection-oriented actions
+# on a TodoList object, including iteration and selection.
+
+class TodoList
+  attr_accessor :title
+
+  def initialize(title)
+    @title = title
+    @todos = []
+  end
+
+  # def each
+  #   index = 0
+  #   while index < @todos.size
+  #     yield(@todos[index])
+  #     index += 1
+  #   end
+  #   self
+  # end
+  # # works 
+
+  def each
+    @todos.each do |todo|# can call #each because @todos is an array.
+      yield(todo)
+    end
+    self# this line returns the @todos(calling object), behaves like Array#each.NO?
+  end
+
+  def size
+    @todos.size
+  end
+
+  def first
+    @todos.first
+  end
+
+  def last
+    @todos.last
+  end
+
+  def shift
+    @todos.shift
+  end
+
+  def pop
+    @todos.pop
+  end
+
+  def done?
+    @todos.all? { |todo| todo.done? }
+  end
+
+  def <<(todo)
+    raise TypeError, 'can only add Todo objects' unless todo.instance_of? Todo
+    
+    @todos << todo
+  end
+  alias_method :add, :<<
+
+  def item_at(idx)
+    @todos.fetch(idx)
+  end
+
+  def mark_done_at(idx)
+    item_at(idx).done!
+  end
+
+  def mark_undone_at(idx)
+    item_at(idx).undone!
+  end
+
+  def done!
+    @todos.each_index do |idx|
+      mark_done_at(idx)
+    end
+  end
+
+  def remove_at(idx)
+    @todos.delete(item_at(idx))
+  end
+
+  def to_s
+    text = "---- #{title} ----\n"
+    text << @todos.map(&:to_s).join("\n")
+    text
+  end
+
+  def to_a
+    @todos.clone
+  end
+end
+
+# Note: Since #add and #<< behave the same, we defined one of them, then just aliased the other
+# In #<<, we're raising a TypeError if the parameter is not a Todo object
+
+todo1 = Todo.new("Buy milk")
+todo2 = Todo.new("Clean room")
+todo3 = Todo.new("Go to gym")
+
+list = TodoList.new("Today's Todos")
+list.add(todo1)
+list.add(todo2)
+list.add(todo3)
+
+# puts list
+
+# list.pop# #<Todo:0x00000000050edc10 @title="Go to gym", @description="", @done=false>
+
+# puts list
+list.mark_done_at(1)
+
+# puts list
+# puts list.remove_at(0)# [ ] Buy milk (#delete returns the element removed.
+#                       # Todo#to_s is called (puts is called on return value, Todo object))
+# puts list
+
+list.each do |todo|
+  puts todo                   # calls Todo#to_s
+end
+
+# [ ] Buy milk
+# [X] Clean room
+# [ ] Go to gym
+
+# my experiment:
+list.each do |todo|
+  puts todo.title + ' NOW'
+end
+
+# Buy milk NOW
+# Clean room NOW
+# Go to gym NOW
+
+a = list.each do |todo|
+  puts todo
+end
+
+# [ ] Buy milk
+# [X] Clean room
+# [ ] Go to gym
+
+
+p a # (each returns the calling object)
+#<TodoList:0x0000000005278b48 @title="Today's Todos", @todos=[#<Todo:0x0000000005278cb0
+# @title="Buy milk", @description="", @done=false>, #<Todo:0x0000000005278c38
+# @title="Clean room", @description="", @done=true>, #<Todo:0x0000000005278bc0
+# @title="Go to gym", @description="", @done=false>]>
+
